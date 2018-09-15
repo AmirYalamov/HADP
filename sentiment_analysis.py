@@ -29,51 +29,55 @@ analyser = SentimentIntensityAnalyzer()
 with open("controversial_words.txt") as f:
     controversial_words = [x.lower().strip() for x in f.readlines()]
 
-sentiment_inversion = False
-good_subject = False
-controversial_comparison = False
-
-sentence = "adolf hitler is awesome!"
-
-subjects = [x.lower() for x in extract_NN(sentence)]
-
-# check if tweet has any offensive topics
-for cwd in controversial_words:
-    cwd_blob = TextBlob(cwd)
-    singular_cwd = ""
-    plural_cwd = ""
-
-    # make sure that plural and singular versions of the word are detected
-    for x in range(len(cwd_blob.words)):
-        if x == len(cwd_blob.words) - 1:
-            singular_cwd += cwd_blob.words[x].singularize()
-            plural_cwd += cwd_blob.words[x].pluralize()
-        else:
-            singular_cwd += cwd_blob.words[x] + " "
-            plural_cwd += cwd_blob.words[x] + " "
-
-    if singular_cwd in sentence.lower() or plural_cwd in sentence.lower() or cwd in sentence.lower():
-        # if tweet has offensive topics, sentiment is flipped
-        sentiment_inversion = True
+while(1):
+    sentence = input("Input a tweet to test: ")
+    if sentence == "q":
         break
+    sentiment_inversion = False
+    good_subject = False
+    controversial_comparison = False
 
-for subject in subjects:
-    if subject not in cwd:
-        good_subject = True
-        break
+    subjects = [x.lower() for x in extract_NN(sentence)]
+    print("SUBJECTS: ", subjects)
+    # check if tweet has any offensive topics
+    for cwd in controversial_words:
+        cwd_blob = TextBlob(cwd)
+        singular_cwd = ""
+        plural_cwd = ""
 
-if sentiment_inversion and good_subject:
-    controversial_comparison = True
+        # make sure that plural and singular versions of the word are detected
+        for x in range(len(cwd_blob.words)):
+            if x == len(cwd_blob.words) - 1:
+                singular_cwd += cwd_blob.words[x].singularize()
+                plural_cwd += cwd_blob.words[x].pluralize()
+            else:
+                singular_cwd += cwd_blob.words[x] + " "
+                plural_cwd += cwd_blob.words[x] + " "
 
-snt = analyser.polarity_scores(sentence)
-final_score = 0
+        if singular_cwd in sentence.lower() or plural_cwd in sentence.lower() or cwd in sentence.lower():
+            # if tweet has offensive topics, sentiment is flipped
+            sentiment_inversion = True
+            break
 
-if controversial_comparison:
-    final_score = abs(snt["compound"])*-1 - 0.5
-elif abs(snt["compound"]) > 0 and sentiment_inversion:
-    final_score = -1*snt["compound"] - 0.5
-else:
-    final_score = snt["compound"]
+    for subject in subjects:
+        if subject not in cwd:
+            good_subject = True
+            break
 
-print(sentence)
-print("Final score:", final_score)
+    if sentiment_inversion and good_subject:
+        controversial_comparison = True
+
+    snt = analyser.polarity_scores(sentence)
+    final_score = 0
+
+    if controversial_comparison:
+        final_score = abs(snt["compound"])*-1 - 0.5
+    elif abs(snt["compound"]) > 0 and sentiment_inversion:
+        final_score = -1*snt["compound"] - 0.5
+    elif abs(snt["compound"]) < 0 and sentiment_inversion:
+        final_score = -1*snt["compound"]
+    else:
+        final_score = snt["compound"]
+
+    print("Final score:", final_score)
+    print("Detailed score:", snt)
