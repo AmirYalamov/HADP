@@ -29,6 +29,9 @@ analyser = SentimentIntensityAnalyzer()
 with open("controversial_words.txt") as f:
     controversial_words = [x.lower().strip() for x in f.readlines()]
 
+with open("bad_words.txt") as f:
+    bad_words = [x.lower().strip() for x in f.readlines()]
+
 while(1):
     sentence = input("Input a tweet to test: ")
     if sentence == "q":
@@ -36,6 +39,7 @@ while(1):
     sentiment_inversion = False
     good_subject = False
     controversial_comparison = False
+    bad_word = False
 
     subjects = [x.lower() for x in extract_NN(sentence)]
     print("SUBJECTS: ", subjects)
@@ -64,13 +68,18 @@ while(1):
             good_subject = True
             break
 
+    for bwd in bad_words:
+        if bwd in sentence.lower():
+            bad_word = True
+
     if sentiment_inversion and good_subject:
         controversial_comparison = True
 
     snt = analyser.polarity_scores(sentence)
     final_score = 0
-
-    if controversial_comparison:
+    if bad_word:
+        final_score = -1.5
+    elif controversial_comparison:
         final_score = abs(snt["compound"])*-1 - 0.5
     elif snt["compound"] > 0 and sentiment_inversion:
         final_score = -1*snt["compound"] - 0.5
