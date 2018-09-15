@@ -72,9 +72,9 @@ while(1):
 
     if controversial_comparison:
         final_score = abs(snt["compound"])*-1 - 0.5
-    elif abs(snt["compound"]) > 0 and sentiment_inversion:
+    elif snt["compound"] > 0 and sentiment_inversion:
         final_score = -1*snt["compound"] - 0.5
-    elif abs(snt["compound"]) < 0 and sentiment_inversion:
+    elif snt["compound"] < 0 and sentiment_inversion:
         final_score = -1*snt["compound"]
     else:
         final_score = snt["compound"]
