@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
@@ -26,6 +27,9 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -88,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                             String input = textMessage.getText().toString();
                             RequestBody body = RequestBody.create(mediaType, "{\n\t\"message\": \"" + input + "\",\n\t\"image\": \"none\",\n\t\"video\": \"none\"\n}");
                             Request request = new Request.Builder()
-                                    .url("https://2b288091.ngrok.io/api/message\n")
+                                    .url("https://htn-caar-2018.appspot.com/api/message\n")
                                     .post(body)
                                     .build();
                             Response response = client.newCall(request).execute();
@@ -171,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                             String image = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Football_iu_1996.jpg/1200px-Football_iu_1996.jpg";
                             RequestBody body = RequestBody.create(mediaType, "{\n\t\"message\": \"\",\n\t\"image\": \"" + image + "\",\n\t\"video\": \"none\"\n}");
                             Request request = new Request.Builder()
-                                    .url("https://2b288091.ngrok.io/api/message\n")
+                                    .url("https://htn-caar-2018.appspot.com/api/message\n")
                                     .post(body)
                                     .build();
                             Response response = client.newCall(request).execute();
@@ -181,6 +185,13 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("RESPONSE: ", jsonObject.toString());
                             reason = jsonObject.get("place interest").toString();
                             sentiment = jsonObject.get("sentiment analysis").toString();
+
+                            URL myFileUrl = new URL ("https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Football_iu_1996.jpg/1200px-Football_iu_1996.jpg");
+                            HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection();
+                            conn.setDoInput(true);
+                            conn.connect();
+                            InputStream is = conn.getInputStream();
+                            imgView.setImageBitmap(BitmapFactory.decodeStream(is));
 
                             if (sentiment.equals("yellow")) {
                                 runOnUiThread(new Runnable() {
@@ -254,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
                             String image = "http://www.simcoemuskokahealth.org/images/default-source/homeslider/istock-174825736-webbanner.jpg?sfvrsn=2";
                             RequestBody body = RequestBody.create(mediaType, "{\n\t\"message\": \"\",\n\t\"image\": \"" + image + "\",\n\t\"video\": \"none\"\n}");
                             Request request = new Request.Builder()
-                                    .url("https://2b288091.ngrok.io/api/message\n")
+                                    .url("https://htn-caar-2018.appspot.com/api/message\n")
                                     .post(body)
                                     .build();
                             Response response = client.newCall(request).execute();
