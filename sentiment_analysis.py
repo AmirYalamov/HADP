@@ -41,8 +41,12 @@ while(1):
     controversial_comparison = False
     bad_word = False
 
+    bad_word_list = []
+    controversial_word_list = []
+    negative_word_list = []
+    controversial_final = []
+
     subjects = [x.lower() for x in extract_NN(sentence)]
-    print("SUBJECTS: ", subjects)
     # check if tweet has any offensive topics
     for cwd in controversial_words:
         cwd_blob = TextBlob(cwd)
@@ -60,33 +64,48 @@ while(1):
 
         if singular_cwd in sentence.lower() or plural_cwd in sentence.lower() or cwd in sentence.lower():
             # if tweet has offensive topics, sentiment is flipped
+            print("test")
             sentiment_inversion = True
-            break
+            controversial_word_list.append(cwd)
 
-    for subject in subjects:
-        if subject not in cwd:
-            good_subject = True
-            break
+    # for subject in sentence.split():
+    #     if not any(subject.lower() in s for s in controversial_words) and subject[0].isupper():
+    #         print(not any [subject.lower() in s for s in controversial_words])
+    #         good_subject = True
+    #         break
 
     for bwd in bad_words:
-        if bwd in sentence.lower():
+        if bwd in sentence.lower().split():
             bad_word = True
+            bad_word_list.append(bwd)
 
     if sentiment_inversion and good_subject:
         controversial_comparison = True
 
     snt = analyser.polarity_scores(sentence)
+    for word in sentence.split():
+        if analyser.polarity_scores(word)["compound"] < 0:
+            negative_word_list.append(word)
+
     final_score = 0
+
     if bad_word:
         final_score = -1.5
+        controversial_final = bad_word_list
     elif controversial_comparison:
-        final_score = abs(snt["compound"])*-1 - 0.5
+        final_score = abs(snt["compound"])*-1 - 0.75
+        controversial_final = controversial_word_list
     elif snt["compound"] > 0 and sentiment_inversion:
         final_score = -1*snt["compound"] - 0.5
-    elif snt["compound"] < 0 and sentiment_inversion:
+        controversial_final = controversial_word_list
+    elif snt["compound"] <= 0 and sentiment_inversion:
         final_score = -1*snt["compound"]
+        controversial_final = controversial_word_list
     else:
         final_score = snt["compound"]
+        controversial_final = negative_word_list
+        if good_subject:
+            final_score *= 1.25
 
     print("Final score:", final_score)
-    print("Detailed score:", snt)
+    print("Controversial due to:", controversial_final)
