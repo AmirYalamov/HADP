@@ -9,8 +9,7 @@ app = ClarifaiApp(api_key='d91fe39d217f482f974ae913641cc989')
 model = app.models.get('moderation')
 
 # get media info from cloud
-image = ClImage(url = 'https://i.pinimg.com/originals/97/ab/99/97ab998a340316e05fd11b6c6a7680e5.jpg')
-#video = ClVideo(url = "put video url here")
+image = ClImage(url = 'https://image.shutterstock.com/image-photo/rolled-marijuana-joint-half-burnt-260nw-135662744.jpg')
 
 jsonString = model.predict([image])
 #model.predict([video])
@@ -20,24 +19,16 @@ print(jsonString)
 with open('Image Recognition/data.json', 'w') as outline:
     json.dump(jsonString, outline)
 
-with open('data.json') as f:
+with open('Image Recognition/data.json') as f:
     data = json.load(f)
-
-# have line go through all the names
-i = 0
-jsonSTR = data
-
-#num = sum(1 for line in open(data['outputs'][0]['data']['concepts']))
-
-#print num
 
 pprint(data['outputs'][0]['data']['concepts'])
 
 finalSTR = ""
 
+# goes through all the json output and picks out things that likely appear in image (i.e. the 0.65 value)
 for entry in data['outputs'][0]['data']['concepts']:
-    if entry['value'] >= 0.8:
-        print entry['name']
+    if entry['value'] >= 0.65:
         finalSTR = finalSTR + entry['name']
 
 print(finalSTR)
